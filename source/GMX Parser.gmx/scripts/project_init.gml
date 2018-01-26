@@ -7,5 +7,7 @@ for(var i = 0; i < 11; i++)
     res_path[i] = ds_list_create();
 }
 
-projectName = "";   // project's name
-helprtf = "";       // help file's name
+projectName = "";       // project's name
+helprtf = "";           // help file's name
+
+global.filename = "";   // project file name

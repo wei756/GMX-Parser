@@ -15,6 +15,7 @@
   </scripts>
   <objects name="objects">
     <object>objects\parser</object>
+    <object>objects\parser_object</object>
   </objects>
   <rooms name="rooms">
     <room>rooms\main</room>
