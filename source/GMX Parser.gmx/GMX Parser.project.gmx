@@ -11,6 +11,7 @@
   <scripts name="scripts">
     <script>scripts\project_init.gml</script>
     <script>scripts\project_clear.gml</script>
+    <script>scripts\project_info.gml</script>
   </scripts>
   <objects name="objects">
     <object>objects\parser</object>

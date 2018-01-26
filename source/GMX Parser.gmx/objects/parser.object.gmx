@@ -42,9 +42,6 @@ res_name[10] = "room";
 res_name_help = "help";
 
 project_init();
-
-projectName = "";
-helprtf = "";
 /*
   &lt;Configs name="configs"&gt;
     &lt;Config&gt;Configs\Default&lt;/Config&gt;
@@ -124,11 +121,6 @@ for(var i = 0; i &lt; 11; i++)
     draw_text(10, 10 + 20 * i, res_name[i] + "res[" + string(i) + "]: " + string(ds_list_size(res_res[i])));
     draw_text(210, 10 + 20 * i, res_name[i] + "path[" + string(i) + "]: " + string(ds_list_size(res_path[i])));
 }
-
-//for(var i = 0; i &lt; ; i++)
-{
-    
-}
 </string>
           </argument>
         </arguments>
@@ -170,10 +162,22 @@ for(var i = 0; i &lt; 11; i++)
         //check correct file
         if (text[0] == checksum)
         {
+            //get project name
+            var r;
+            for(r = string_length(filename); r &gt; 0; r--) // group &lt;/tag&gt;
+            {
+                if string_char_at(filename, r) == "\"
+                {
+                    projectName = string_delete(filename, 1, r);
+                    break;
+                }
+            }
+            projectName = string_replace(projectName, ".project.gmx", "");
+            
+            //project.gmx parse
             opened = ""; // tree path
             ropened = -1; // opened resource
-            //parse
-            for(var i = 1; i &lt; array_length_1d(text); i++)
+            for(var i = 1; i &lt; text_l; i++)
             {
                 var current_text = text[i];
                 if (opened == "")
@@ -185,6 +189,10 @@ for(var i = 0; i &lt; 11; i++)
                         opened = string_copy(text[i], pos, string_pos('"&gt;', text[i]) - pos);
                         ropened = r;
                         break;
+                    }
+                    if string_count('&lt;rtf&gt;', text[i]) &amp;&amp; string_count('&lt;/rtf&gt;', text[i])
+                    {
+                        helprtf = string_copy(text[i], string_pos('&lt;rtf&gt;', text[i]) + string_length('&lt;rtf&gt;'), string_pos('&lt;/rtf&gt;', text[i]) - (string_pos('&lt;rtf&gt;', text[i]) + string_length('&lt;rtf&gt;')));
                     }
                 }
                 else
@@ -231,15 +239,8 @@ for(var i = 0; i &lt; 11; i++)
             show_message("Incorrect file.");
         }
         
-        //display
-        for(var i = 0; i &lt; 11; i++)
-        {
-            show_debug_message(res_name[i]);
-            show_debug_message("----------------");
-            for(var r = 0; r &lt; ds_list_size(res_res[i]); r++)
-                show_debug_message(ds_list_find_value(res_res[i], r) + "  (" + ds_list_find_value(res_path[i], r) + ")");
-            show_debug_message("------------------------------------------------------------------");
-        }
+        //information display
+        project_info();
     
     }
 }
