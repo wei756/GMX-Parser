@@ -5,9 +5,7 @@
   </Configs>
   <NewExtensions/>
   <sounds name="sound"/>
-  <sprites name="sprites">
-    <sprite>sprites\sys_spr</sprite>
-  </sprites>
+  <sprites name="sprites"/>
   <backgrounds name="background"/>
   <paths name="paths"/>
   <scripts name="scripts">
@@ -15,7 +13,6 @@
     <script>scripts\project_clear.gml</script>
   </scripts>
   <objects name="objects">
-    <object>objects\sys</object>
     <object>objects\parser</object>
   </objects>
   <rooms name="rooms">
