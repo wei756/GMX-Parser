@@ -12,6 +12,11 @@
     <script>scripts\project_init.gml</script>
     <script>scripts\project_clear.gml</script>
     <script>scripts\project_info.gml</script>
+    <script>scripts\object_info.gml</script>
+    <script>scripts\event_init.gml</script>
+    <script>scripts\event_add.gml</script>
+    <script>scripts\tag_parse.gml</script>
+    <script>scripts\filter_xml.gml</script>
   </scripts>
   <objects name="objects">
     <object>objects\parser</object>

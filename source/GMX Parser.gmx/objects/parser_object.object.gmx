@@ -61,10 +61,15 @@ obj_event[10] = "relative";
 obj_event[11] = "isnot";
 
 objSet = ds_list_create();
-objEvent[0, 0] = ds_list_create();
-objCode[0, 0] = ds_list_create();
+//objEvent[0, 0] = ds_list_create();
+//objCode[0, 0] = ds_list_create();
+for(var xx = 0; xx &lt; 11; xx++) //event
+for(var yy = 0; yy &lt; 250; yy++) //enumb
+    objEvent[xx, yy] = -1;
+    objCode[xx, yy] = -1;
 
-objname = "";
+objname = ""; // file name
+objName = ""; // object name
 
 /*
 one_event.object.gmx
@@ -140,11 +145,14 @@ one_event.object.gmx
           <argument>
             <kind>1</kind>
             <string>draw_set_color(c_green);
-for(var i = 0; i &lt; 11; i++)
+
+for(var i = 0; i &lt; 0; i++)
 {
     draw_text(10, 10 + 20 * i, res_name[i] + "res[" + string(i) + "]: " + string(ds_list_size(res_res[i])));
     draw_text(210, 10 + 20 * i, res_name[i] + "path[" + string(i) + "]: " + string(ds_list_size(res_path[i])));
 }
+for(var r = 0; r &lt; ds_list_size(objSet); r += 2)
+    draw_text(10, 10 + 20 * r, ds_list_find_value(objSet, r) + ": " + string(ds_list_find_value(objSet, r + 1)));
 </string>
           </argument>
         </arguments>
@@ -169,15 +177,6 @@ for(var i = 0; i &lt; 11; i++)
             <kind>1</kind>
             <string>if keyboard_check(vk_control)
 {
-    var r;
-    for(r = string_length(global.filename); r &gt; 0; r--) // group &lt;/tag&gt;
-    {
-        if string_char_at(global.filename, r) == "\"
-        {
-            objname = string_copy(global.filename, 1, r - 1);
-            break;
-        }
-    }
     objname = get_open_filename("GameMaker Object files|*.object.gmx", "");
     
     
@@ -197,62 +196,75 @@ for(var i = 0; i &lt; 11; i++)
         if (text[0] == checksum)
         {
             //project.gmx parse
+            objName = tag_parse(objname, 'objects\', '.object.gmx');
             eventtype = -1; // eventtype
             enumb = -1; // enumb
             code = 0; // &lt;string&gt;
+            obj_c = 0; // for collision event
             for(var i = 2; i &lt; text_l; i++)
             {
                 var current_text = text[i];
                 if (eventtype == -1) // object setting
                 {
-                    for(var r = 0; r &lt; array_height_2d(obj_set); r++)
-                    if string_count('&lt;' + obj_set[r] + '&gt;', text[i]) &amp;&amp; string_count('&lt;/' + obj_set[r] + '&gt;', text[i])
+                    for(var r = 0; r &lt; array_length_1d(obj_set); r++) // object setting
+                    if string_count('&lt;' + obj_set[r] + '&gt;', current_text) &amp;&amp; string_count('&lt;/' + obj_set[r] + '&gt;', current_text)
                     {
-                        ds_list_add(objSet, obj_set[r], string_copy(text[i], string_pos('&lt;' + obj_set[r] + '&gt;', text[i]) + string_length('&lt;' + obj_set[r] + '&gt;'), string_pos('&lt;/' + obj_set[r] + '&gt;', text[i]) - (string_pos('&lt;' + obj_set[r] + '&gt;', text[i]) + string_length('&lt;' + obj_set[r] + '&gt;'))));
+                        ds_list_add(objSet, obj_set[r], tag_parse(current_text, '&lt;' + obj_set[r] + '&gt;', '&lt;/' + obj_set[r] + '&gt;'))
                         break;
                     }
                     
-                    if string_count('&lt;event eventtype="', text[i]) // event
+                    if string_count('&lt;event eventtype="', current_text) // event begin
                     {
-                        var pos = string_pos('&lt;event eventtype="', text[i]) + string_length('&lt;event eventtype="');
-                        eventtype = string_digits("/" + string_copy(text[i], pos, string_pos('" enumb="', text[i]) - pos));
+                        eventtype = real(tag_parse(current_text, '&lt;event eventtype="', '" enumb="'));
+                        if eventtype == 4 // collision event
+                        {
+                            enumb = obj_c;
+                            event_init(eventtype, enumb);
+                            event_add(eventtype, enumb, "obj", tag_parse(current_text, '" enumb="', '"&gt;'));
+                            obj_c++;
+                        }
+                        else
+                        {
+                            enumb = real(tag_parse(current_text, '" enumb="', '"&gt;'));
+                            event_init(eventtype, enumb);
+                        }
                     }
                 }
-                else // code block
+                else // event
                 {
-                    if string_count('&lt;' + res_name[ropened] + 's name="', text[i]) // group
+                
+                    if code // code parse
                     {
-                        var pos = string_pos('&lt;' + res_name[ropened] + 's name="', text[i]) + string_length('&lt;' + res_name[ropened] + 's name="');
-                        opened += "/" + string_copy(text[i], pos, string_pos('"&gt;', text[i]) - pos);
-                    }
-                    else if string_count('&lt;' + res_name[ropened] + '&gt;', text[i]) // resource
-                    {
-                        var pos = string_pos('&lt;' + res_name[ropened] + '&gt;', text[i]) + string_length('&lt;' + res_name[ropened] + '&gt;');
-                        var path = string_copy(text[i], pos, string_pos('&lt;/' + res_name[ropened] + '&gt;', text[i]) - pos), rname = path;
-                        
-                        for(var r = string_length(path); r &gt; 0; r--) // resource name filtering
-                        if string_char_at(path, r) == "\"
+                        if string_count('&lt;/string&gt;', current_text) // code block end
                         {
-                            rname = string_delete(path, 1, r);
+                            code = 0;
+                        }
+                        else
+                        {
+                            event_add(eventtype, enumb, 'code', filter_xml(current_text));
+                        }
+                    }
+                    else // event option parse
+                    {
+                        for(var r = 0; r &lt; array_length_1d(obj_event); r++) // event option
+                        if string_count('&lt;' + obj_event[r] + '&gt;', current_text) &amp;&amp; string_count('&lt;/' + obj_event[r] + '&gt;', current_text)
+                        {
+                            event_add(eventtype, enumb, obj_event[r], tag_parse(current_text, '&lt;' + obj_event[r] + '&gt;', '&lt;/' + obj_event[r] + '&gt;'));
                             break;
                         }
                         
-                        ds_list_add(res_res[ropened], opened + "/" + rname);
-                        ds_list_add(res_path[ropened], path);
-                    }
-                    else if string_count('&lt;/' + res_name[ropened] + 's&gt;', text[i]) // &lt;/tag&gt;
-                    {
-                        var r;
-                        for(r = string_length(opened); r &gt; 0; r--) // group &lt;/tag&gt;
+                        if string_count('&lt;string&gt;', current_text) // code block begin
                         {
-                            if string_char_at(opened, r) == "/"
-                            {
-                                opened = string_copy(opened, 1, r - 1);
-                                break;
-                            }
+                            code = 1;
+                            var pos = string_pos('&lt;string&gt;', current_text) + string_length('&lt;string&gt;');
+                            event_add(eventtype, enumb, 'code', filter_xml(string_delete(current_text, 1, pos - 1)));
                         }
-                        if (r == 0)
-                            opened = "";
+                        
+                        if string_count('&lt;/event&gt;', current_text) // event end
+                        {
+                            eventtype = -1;
+                            enumb = -1;
+                        }
                     }
                 }
             }
@@ -263,7 +275,7 @@ for(var i = 0; i &lt; 11; i++)
         }
         
         //information display
-        project_info();
+        object_info();
     
     }
 }
