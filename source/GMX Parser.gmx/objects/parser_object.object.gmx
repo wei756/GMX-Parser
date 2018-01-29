@@ -151,7 +151,7 @@ for(var i = 0; i &lt; 0; i++)
     draw_text(10, 10 + 20 * i, res_name[i] + "res[" + string(i) + "]: " + string(ds_list_size(res_res[i])));
     draw_text(210, 10 + 20 * i, res_name[i] + "path[" + string(i) + "]: " + string(ds_list_size(res_path[i])));
 }
-for(var r = 0; r &lt; ds_list_size(objSet); r += 2)
+for(var r = 0; r &lt; 0/*ds_list_size(objSet)*/; r += 2)
     draw_text(10, 10 + 20 * r, ds_list_find_value(objSet, r) + ": " + string(ds_list_find_value(objSet, r + 1)));
 </string>
           </argument>
@@ -276,6 +276,13 @@ for(var r = 0; r &lt; ds_list_size(objSet); r += 2)
         
         //information display
         object_info();
+        ListView.lvItemCount = 0;
+        for(var xx = 0; xx &lt; 11; xx++) //event
+        for(var yy = 0; yy &lt; array_length_2d(objEvent, xx); yy++) //enumb
+        if objEvent[xx, yy] != -1
+        {
+            addItem(ListView, 0, string(xx), string(yy), "", 1, 0);
+        }
     
     }
 }
