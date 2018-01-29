@@ -65,8 +65,10 @@ objSet = ds_list_create();
 //objCode[0, 0] = ds_list_create();
 for(var xx = 0; xx &lt; 11; xx++) //event
 for(var yy = 0; yy &lt; 250; yy++) //enumb
+{
     objEvent[xx, yy] = -1;
     objCode[xx, yy] = -1;
+}
 
 objname = ""; // file name
 objName = ""; // object name
@@ -195,6 +197,12 @@ for(var r = 0; r &lt; 0/*ds_list_size(objSet)*/; r += 2)
         //check correct file
         if (text[0] == checksum)
         {
+            for(var xx = 0; xx &lt; 11; xx++) //event
+            for(var yy = 0; yy &lt; 250; yy++) //enumb
+            {
+                objEvent[xx, yy] = -1;
+                objCode[xx, yy] = -1;
+            }
             //project.gmx parse
             objName = tag_parse(objname, 'objects\', '.object.gmx');
             eventtype = -1; // eventtype
